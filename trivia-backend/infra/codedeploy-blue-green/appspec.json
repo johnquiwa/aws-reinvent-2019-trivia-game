@@ -26,9 +26,4 @@
       }
     }
   ],
-  "Hooks": [
-    {
-      "AfterAllowTestTraffic": "PLACEHOLDER_HOOK_FUNCTION"
-    }
-  ]
 }

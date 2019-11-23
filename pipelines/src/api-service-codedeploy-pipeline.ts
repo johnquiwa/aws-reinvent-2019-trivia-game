@@ -6,6 +6,7 @@ import actions = require('@aws-cdk/aws-codepipeline-actions');
 import ecr = require('@aws-cdk/aws-ecr');
 import iam = require('@aws-cdk/aws-iam');
 import cdk = require('@aws-cdk/core');
+import process = require('process');
 
 class TriviaGameBackendCodeDeployPipelineStack extends cdk.Stack {
     constructor(parent: cdk.App, name: string, props?: cdk.StackProps) {
@@ -20,7 +21,7 @@ class TriviaGameBackendCodeDeployPipelineStack extends cdk.Stack {
         const sourceOutput = new codepipeline.Artifact('SourceArtifact');
         const sourceAction = new actions.GitHubSourceAction({
             actionName: 'GitHubSource',
-            owner: 'aws-samples',
+            owner: 'johnquiwa',
             repo: 'aws-reinvent-2019-trivia-game',
             oauthToken: githubAccessToken,
             output: sourceOutput
@@ -129,6 +130,6 @@ class TriviaGameBackendCodeDeployPipelineStack extends cdk.Stack {
 
 const app = new cdk.App();
 new TriviaGameBackendCodeDeployPipelineStack(app, 'TriviaGameBackendCodeDeployPipeline', {
-    env: { account: process.env['CDK_DEFAULT_ACCOUNT'], region: 'us-east-1' }
+    env: { account: process.env['CDK_DEFAULT_ACCOUNT'], region: 'us-west-1' }
 });
 app.synth();

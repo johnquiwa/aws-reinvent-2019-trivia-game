@@ -7,6 +7,7 @@ import { LoadBalancerTarget } from '@aws-cdk/aws-route53-targets';
 import { StringParameter } from '@aws-cdk/aws-ssm';
 import { ManagedPolicy, Role, ServicePrincipal } from '@aws-cdk/aws-iam';
 import cdk = require('@aws-cdk/core');
+import process = require('process')
 
 interface TriviaBackendStackProps extends cdk.StackProps {
   domainName: string;
@@ -143,11 +144,11 @@ const app = new cdk.App();
 new TriviaBackendStack(app, 'TriviaBackendTest', {
   domainName: 'api-test.reinvent-trivia.com',
   domainZone: 'reinvent-trivia.com',
-  env: { account: process.env['CDK_DEFAULT_ACCOUNT'], region: 'us-east-1' }
+  env: { account: process.env['CDK_DEFAULT_ACCOUNT'], region: 'us-west-1' }
 });
 new TriviaBackendStack(app, 'TriviaBackendProd', {
   domainName: 'api.reinvent-trivia.com',
   domainZone: 'reinvent-trivia.com',
-  env: { account: process.env['CDK_DEFAULT_ACCOUNT'], region: 'us-east-1' }
+  env: { account: process.env['CDK_DEFAULT_ACCOUNT'], region: 'us-west-1' }
 });
 app.synth();

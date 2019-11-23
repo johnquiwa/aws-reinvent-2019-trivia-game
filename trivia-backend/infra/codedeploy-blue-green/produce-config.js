@@ -5,10 +5,9 @@ const fs = require('fs');
 
 const argv = require('yargs')
     .usage('Create ECS/CodeDeploy config files with values from CloudFormation stack\nUsage: $0')
-    .demandOption(['s', 'g', 'h'])
+    .demandOption(['s', 'g'])
     .alias('s', 'stack-name')
     .alias('g', 'stage-name')
-    .alias('h', 'hook-stack-name')
     .argv;
 
 const deploymentGroupConfig = require('./deployment-group.json');
@@ -18,14 +17,12 @@ const appSpec = require('./appspec.json');
 
 const stack = argv.stackName;
 const stage = argv.stageName;
-const hookStack = argv.hookStackName;
 
 const cfn = new aws.CloudFormation();
 const sts = new aws.STS();
 
 async function produceConfigs() {
     let data = await cfn.describeStackResources({ StackName: stack }).promise();
-    let hookData = await cfn.describeStackResources({ StackName: hookStack }).promise();
     let identity = await sts.getCallerIdentity().promise();
     let accountId = identity.Account;
 
@@ -40,7 +37,6 @@ async function produceConfigs() {
     let taskRole;
     let executionRole;
     let codedeployRole;
-    let preTrafficHook;
 
     for (const resource of data.StackResources) {
         if (resource.ResourceType == "AWS::CloudWatch::Alarm") {
@@ -72,12 +68,6 @@ async function produceConfigs() {
         }
     }
 
-    for (const resource of hookData.StackResources) {
-        if (resource.LogicalResourceId == 'PreTrafficHook') {
-            preTrafficHook = resource.PhysicalResourceId;
-        }
-    }
-
     // Write out deployment config
     deploymentGroupConfig.loadBalancerInfo.targetGroupPairInfoList[0].targetGroups = targetGroupNames;
     deploymentGroupConfig.loadBalancerInfo.targetGroupPairInfoList[0].prodTrafficRoute.listenerArns = [ mainTrafficListener ];
@@ -102,7 +92,6 @@ async function produceConfigs() {
     // Write out appspec
     appSpec.Resources[0].TargetService.Properties.NetworkConfiguration.awsvpcConfiguration.subnets = privateSubnets;
     appSpec.Resources[0].TargetService.Properties.NetworkConfiguration.awsvpcConfiguration.securityGroups = serviceSecurityGroups;
-    appSpec.Hooks[0].AfterAllowTestTraffic = preTrafficHook;
     fs.writeFileSync(`./build/appspec-${stage}.json`, JSON.stringify(appSpec, null, 2) , 'utf-8');
 }
 

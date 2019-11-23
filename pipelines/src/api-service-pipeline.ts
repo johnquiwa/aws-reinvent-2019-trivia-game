@@ -153,6 +153,6 @@ class TriviaGameBackendPipelineStack extends cdk.Stack {
 
 const app = new cdk.App();
 new TriviaGameBackendPipelineStack(app, 'TriviaGameBackendPipeline', {
-    env: { account: process.env['CDK_DEFAULT_ACCOUNT'], region: 'us-east-1' }
+    env: { account: process.env['CDK_DEFAULT_ACCOUNT'], region: 'us-west-1' }
 });
 app.synth();
